@@ -362,6 +362,7 @@ void select_operation(){
                 break;
         case 5:deposit();
                 bal_enq();
+                break;
         default:goto retry;
                 break;
     }
