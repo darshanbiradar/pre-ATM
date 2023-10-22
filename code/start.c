@@ -24,6 +24,7 @@ typedef struct{
     char DOB[100];
     float amount;
     char status[10];
+    float max_for_day;
 }Account;
 
 card user;
@@ -58,7 +59,6 @@ FILE* fileread(char *s){
     }
     else return fp;
 }
-
 //Function to check whether the entered Card number is persent in the bank file system if yes then storing it into the card structure
 //return type boolean 
 bool card_autho(){
@@ -91,7 +91,7 @@ bool card_autho(){
     }
     i++;
     printf("Card Number Invalid\n");
-    _sleep(4000);
+    _sleep(3000);
     fclose(fp);
     return false;
     }  
@@ -169,7 +169,7 @@ void acc_info_fetch(){
     acc_line=0;
     while(fgets(line,sizeof(line),fp)!=NULL){
         acc_line++;
-        sscanf(line,"%s | %[^|] | %s  | $%f |%s",user_acc.no,user_acc.name_holde,user_acc.DOB,&user_acc.amount,user_acc.status);
+        sscanf(line,"%s | %[^|] | %s  | $%f |%s |%f",user_acc.no,user_acc.name_holde,user_acc.DOB,&user_acc.amount,user_acc.status,&user_acc.max_for_day);
         if(strcmp(user.acc_no,user_acc.no)==0){
             if(strncmp(user_acc.status,"ok",2)==0)
                 return;
@@ -184,7 +184,7 @@ void acc_info_fetch(){
 void with_stcat(){
     char concat[1024];
     int acc_width=11,name_width=18,dob_width=13,amt_width=9;
-    sprintf(concat,"%-*s | %-*s| %-*s | $%-*.2f|%s\n",acc_width,user_acc.no,name_width,user_acc.name_holde,dob_width,user_acc.DOB,amt_width,user_acc.amount,user_acc.status);
+    sprintf(concat,"%-*s | %-*s| %-*s | $%-*.2f|%s |%.2f\n",acc_width,user_acc.no,name_width,user_acc.name_holde,dob_width,user_acc.DOB,amt_width,user_acc.amount,user_acc.status,user_acc.max_for_day);
     //printf("%s",concat);
     strcpy(temp_deduct,concat);
 }
@@ -225,8 +225,15 @@ void Withdraw(){
         }
         i++;
     }
+    if(u_amt>=user_acc.max_for_day){
+        printf("Max Limit of $5000 reached");
+        _sleep(3000);
+        return;
+    }
+    
     user_acc.amount=user_acc.amount-u_amt;
     Amount = Amount - u_amt;
+    user_acc.max_for_day-=u_amt;
     // char *new_data=stcat();
     with_write();
 //     printf("Avaliable Balance: $%.2f\n",user_acc.amount);
@@ -234,8 +241,8 @@ void Withdraw(){
 }
 void transf_stcat(){
     char concat[1024];
-    int acc_width=11,name_width=18,dob_width=14,amt_width=9;
-    sprintf(concat,"%-*s | %-*s| %-*s | $%-*.2f|%s\n",acc_width,beni.no,name_width,beni.name_holde,dob_width,beni.DOB,amt_width,beni.amount,beni.status);
+    int acc_width=11,name_width=18,dob_width=13,amt_width=9;
+    sprintf(concat,"%-*s | %-*s| %-*s | $%-*.2f|%s |%.2f\n",acc_width,beni.no,name_width,beni.name_holde,dob_width,beni.DOB,amt_width,beni.amount,beni.status,beni.max_for_day);
     //printf("%s",concat);
     strcpy(temp_deduct,concat);
 }
@@ -246,8 +253,7 @@ void transf_write(){
         bool keep_reading=true;
         int count=1;
         do{
-            fgets(pr_line,1024,fp_acc);
-            if(feof(fp_acc))
+            if(fgets(pr_line,1024,fp_acc)==NULL)
                 keep_reading=false;
             if(beni_count==count){
                 transf_stcat();
@@ -255,8 +261,7 @@ void transf_write(){
             }
             else
                 fputs(pr_line,fp_temp);
-            count++;
-            
+            count++;  
         }while(keep_reading);
         fclose(fp_acc);
         fclose(fp_temp);
@@ -292,8 +297,7 @@ void transfer_funds(){
         char line[256];
         while(fgets(line,sizeof(line),fp)!=NULL){
             beni_count++;
-            sscanf(line,"%s | %[^|] | %s | $%f |%s",beni.no,beni.name_holde,beni.DOB,&beni.amount,beni.status);
-            printf("\n%s | %s | %s | $%f |%s",beni.no,beni.name_holde,beni.DOB,beni.amount,beni.status);
+            sscanf(line,"%s | %[^|] | %s | $%f |%s |%f",beni.no,beni.name_holde,beni.DOB,&beni.amount,beni.status,&beni.max_for_day);
             if(strncmp(temp,beni.no,11)==0){
                 if(strcmp(beni.status,"ok")==0){
                     init_transfer();
