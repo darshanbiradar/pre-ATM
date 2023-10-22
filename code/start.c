@@ -3,6 +3,10 @@
 #include<stdbool.h>
 #include<string.h>
 #include<ctype.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<time.h>
+#include<sys/stat.h>
 float Amount;
 int card_line;
 int acc_line;
@@ -30,6 +34,7 @@ typedef struct{
 card user;
 Account user_acc;
 Account beni;
+Account temp;
 
 int isNumber(const char *str) {
     int i = 0;
@@ -128,8 +133,8 @@ void block_card(){
             if(feof(fp_pre))
                 keep_reading=false;
             if(card_line==count){
-                fputs(temp_block,fp_temp);
                 block();
+                fputs(temp_block,fp_temp);
             }
             else{    
                 fputs(pr_line,fp_temp);
@@ -155,7 +160,7 @@ bool pin_autho(){
         tries++;
     }
     printf("Card Blocked Please Contact The Branch Manager\n"); //if fails then card is blocked
-    _sleep(1000);
+    _sleep(3000);
     block_card();
     return false;
 }
@@ -362,10 +367,40 @@ void select_operation(){
                 break;
     }
 }
+void check_date(){
+    struct stat file_stat;
+    if(stat("..\\Data_base\\acc_info.txt",&file_stat)==0){
+        time_t modi_date=file_stat.st_mtime;
+        char for_date[20];
+        strftime(for_date,sizeof(for_date),"%b %d %Y",localtime(&modi_date));
+        // printf("%s\n",for_date);
+        if(strcmp(for_date,__DATE__)==0){
+            return;
+        }
+        else{
+            FILE *fp_read=fopen ("..\\Data_base\\acc_info.txt","r");
+            FILE *fp_write=fopen("..\\Data_base\\temp_acc.txt","w");
+            char line[1024],acc[13],acc_name[18],acc_dob[13],acc_stat[4];
+            float amt,max;
+            while(fgets(line,1024,fp_read)!=NULL){
+                sscanf(line,"%s | %[^|] | %s | $%f |%s |%f",acc,acc_name,acc_dob,&amt,acc_stat,&max);
+                max=5000.00;
+                char concat[1024];
+                int acc_width=11,name_width=18,dob_width=13,amt_width=9;
+                sprintf(concat,"%-*s | %-*s| %-*s | $%-*.2f|%s |%.2f\n",acc_width,acc,name_width,acc_name,dob_width,acc_dob,amt_width,amt,acc_stat,max);
+                fputs(concat,fp_write);
+            }
+            rewrite("..\\Data_base\\temp_acc.txt","..\\Data_base\\acc_info.txt");
+        }
+    }
+    
+
+}
 void dump(){
 }
 int main() {
     char temp;
+    check_date();
     start:
     _sleep(2000);
     ATM_init();
