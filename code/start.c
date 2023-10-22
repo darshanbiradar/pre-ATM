@@ -78,7 +78,7 @@ bool card_autho(){
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL){
         card_line++;
-        sscanf(line, "%16s %4s %5s %11s %2s", user.card_no, user.pin, user.expiry_date, user.acc_no,user.card_blocked;
+        sscanf(line, "%16s %4s %5s %11s %2s", user.card_no, user.pin, user.expiry_date, user.acc_no,user.card_blocked);
         if (strcmp(card_no, user.card_no) == 0){
             if(strcmp(user.card_blocked,"ok")==0)
                 return true;
