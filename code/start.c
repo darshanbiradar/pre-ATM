@@ -101,6 +101,14 @@ bool card_autho(){
     return false;
     }  
 }
+void log(char *s){
+    time_t now = time(0);
+    FILE *fp=fopen("..\\Data_base\\log.txt","a");
+    char data[1024];
+    sprintf(data,"%s %s",s,ctime(&now));
+    fputs(data,fp);
+    fclose(fp);
+}
 
 void rewrite(char *source,char *dest){
     FILE *fp_read=fopen(source,"r");
@@ -176,8 +184,10 @@ void acc_info_fetch(){
         acc_line++;
         sscanf(line,"%s | %[^|] | %s  | $%f |%s |%f",user_acc.no,user_acc.name_holde,user_acc.DOB,&user_acc.amount,user_acc.status,&user_acc.max_for_day);
         if(strcmp(user.acc_no,user_acc.no)==0){
-            if(strncmp(user_acc.status,"ok",2)==0)
+            if(strncmp(user_acc.status,"ok",2)==0){
+                fclose(fp);
                 return;
+            }
             else{
                 printf("Bad Account\n");
             }
@@ -241,6 +251,9 @@ void Withdraw(){
     user_acc.max_for_day-=u_amt;
     // char *new_data=stcat();
     with_write();
+    char data1[1024];
+    sprintf(data1,"%.2f Debited from %s",u_amt,user_acc.no);
+    log(data1);
 //     printf("Avaliable Balance: $%.2f\n",user_acc.amount);
 //     printf("Avaliable balance in the ATM %.2f\n",Amount);
 }
@@ -288,6 +301,11 @@ void init_transfer(){
     else if(user_acc.amount < temp_amt){
         printf("Insufficient Balanace\n");
     }
+    char data1[1024],data2[1024];
+    sprintf(data1,"%.2f Debited from %s",temp_amt,user_acc.no);
+    sprintf(data2,"%.2f Credited to %s",temp_amt,beni.no);
+    log(data1);
+    log(data2);
 }
 
 void transfer_funds(){
@@ -305,6 +323,7 @@ void transfer_funds(){
             sscanf(line,"%s | %[^|] | %s | $%f |%s |%f",beni.no,beni.name_holde,beni.DOB,&beni.amount,beni.status,&beni.max_for_day);
             if(strncmp(temp,beni.no,11)==0){
                 if(strcmp(beni.status,"ok")==0){
+                    fclose(fp);
                     init_transfer();
                     return;
                 }
@@ -324,6 +343,9 @@ void deposit(){
     scanf("%f",&amt);
     user_acc.amount=user_acc.amount+amt;
     with_write();
+    char data[1024];
+    sprintf(data,"%.2f Credited %s",amt,user_acc.no);
+    log(data);
 }
 
 void mini_statement(){
