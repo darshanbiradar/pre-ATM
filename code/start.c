@@ -230,16 +230,16 @@ void with_write(){
 
 void Withdraw(){
     system("cls");
-    int u_amt,i=0;
+    int i=0;
+    float u_amt;
     // printf("Avaliable Balance: $%.2f\n",user_acc.amount);
-    while(i<3){
-        printf("Enter amount to withdraw (Max tries 3): ");
-        scanf("%d",&u_amt);
-        if (u_amt <= Amount && u_amt <= user_acc.amount ) {
-            break;
+        printf("Enter amount to withdraw: ");
+        scanf("%f",&u_amt);
+        if (u_amt > Amount || u_amt > user_acc.amount ) {
+            printf("Insufficient Balance\n");
+            _sleep(2000);
+            return;
         }
-        i++;
-    }
     if(u_amt>=user_acc.max_for_day){
         printf("Max Limit of $5000 reached");
         _sleep(3000);
@@ -349,7 +349,28 @@ void deposit(){
 }
 
 void mini_statement(){
-
+    system("cls");
+    int i=0,j=0;
+    char line[1024];
+    char found[10][1024];
+    FILE* fp = fileread("..\\Data_base\\log.txt");
+    while(fgets(line,sizeof(line),fp)!=NULL){
+        if(strstr(line,user_acc.no)!=NULL){
+            if(i==10){
+                j=0;
+                while(j<10){
+                    strcpy(found[j],found[j+1]);
+                    j++;
+                }
+                i=9;
+            }
+            strcpy(found[i++],line);
+        }
+    }
+    fclose(fp);
+    for(int k=0;k<=i;k++)
+        printf("%s\n",found[k]);
+    _sleep(10000);
 }
 
 void bal_enq(){

@@ -10,12 +10,13 @@ struct BankAccount {
     double balance;
     char status[3];  // Default status is "ok"
 };
-typedef struct{
-   unsigned long long card_no;
+typedef struct {
+    unsigned long long card_no;
     unsigned int pin;
     char date[6];
-
-}card;
+    long long accountNumber;
+    char status[3];
+} CardInfo;
 long long generateRandomAccountNumber() {
     // Seed the random number generator
     srand(time(NULL));
@@ -23,13 +24,35 @@ long long generateRandomAccountNumber() {
     // Generate a random account number between 10000000000 and 99999999999
     return (rand() % (99999999999LL - 10000000000LL + 1)) + 10000000000LL;
 }
-void transf_stcat(struct BankAccount *account){
-    
+void generateCardInfoToFile(const char *filename, long long accountNumber) {
+    FILE *file = fopen(filename, "a");
+
+    if (file == NULL) {
+        perror("Error opening file for appending card info");
+        return;
+    }
+
+    CardInfo card;
+    // Generate a random 16-digit card number
+    card.card_no = rand() % (9999999999999999LL - 1000000000000000LL + 1) + 1000000000000000LL;
+
+    // Generate a random 4-digit PIN
+    card.pin = rand() % (9999 - 1000 + 1) + 1000;
+
+    // Generate a random expiry date (MM-YY)
+    time_t now = time(NULL);
+    struct tm *tm_info = localtime(&now);
+    strftime(card.date, sizeof(card.date), "%m-%y", tm_info);
+
+    card.accountNumber = accountNumber;
+    strcpy(card.status, "ok");
+
+    // Append card info to the file
+    fprintf(file, "%llu %04u %s %lld %s\n", card.card_no, card.pin, card.date, card.accountNumber, card.status);
+
+    fclose(file);
 }
 
-void card_create(){
-
-}
 
 void appendAccountToFile(const char *filename, struct BankAccount account) {
     // Open the file in append mode
@@ -115,6 +138,7 @@ int main() {
 
     printf("Account created successfully!\n");
     printf("Your Account Number is: %lld\n", newAccount.accountNumber);
+    generateCardInfoToFile("..\\Data_base\\card_data.txt",newAccount.accountNumber);
 
     printf("Thank you for using our services!\n");
 
