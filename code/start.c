@@ -47,14 +47,6 @@ int isNumber(const char *str) {
 //Setting the amount to the atm at the time of INITILIZATION
 void ATM_init(){
     Amount=100000;
-    if(isalnum(Amount)){
-        //return Amount;
-    }
-    // else{
-    //     printf("Invalid Input\n");
-    //     printf("Enter a Valid Amount :");
-    //     scanf("%f",&Amount);
-    // }
 }
 
 //Creating a generic file for opening the file in the read mode
@@ -86,7 +78,7 @@ bool card_autho(){
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL){
         card_line++;
-        sscanf(line, "%16s %4s %5s %11s %2s", user.card_no, user.pin, user.expiry_date, user.acc_no,user.card_blocked);
+        sscanf(line, "%16s %4s %5s %11s %2s", user.card_no, user.pin, user.expiry_date, user.acc_no,user.card_blocked;
         if (strcmp(card_no, user.card_no) == 0){
             if(strcmp(user.card_blocked,"ok")==0)
                 return true;
@@ -133,6 +125,8 @@ void block_card(){
         int count=1;
         do{
             fgets(pr_line,1024,fp_pre);
+            if(feof(fp_pre))
+                keep_reading=false;
             if(card_line==count){
                 fputs(temp_block,fp_temp);
                 block();
@@ -140,16 +134,12 @@ void block_card(){
             else{    
                 fputs(pr_line,fp_temp);
                 }
-            count++;
-            if(feof(fp_pre))
-                keep_reading=false;
+            count++; 
         }while(keep_reading);
         fclose(fp_pre);
         fclose(fp_temp);
         rewrite("..\\Data_base\\card_temp.txt","..\\Data_base\\card_data.txt");
 }
-
-
 //Checking fo authenication of the user with his PIN
 bool pin_autho(){
     system("cls");
@@ -230,7 +220,7 @@ void Withdraw(){
     while(i<3){
         printf("Enter amount to withdraw (Max tries 3): ");
         scanf("%d",&u_amt);
-        if (u_amt <= Amount && u_amt <= user_acc.amount) {
+        if (u_amt <= Amount && u_amt <= user_acc.amount ) {
             break;
         }
         i++;
@@ -257,6 +247,8 @@ void transf_write(){
         int count=1;
         do{
             fgets(pr_line,1024,fp_acc);
+            if(feof(fp_acc))
+                keep_reading=false;
             if(beni_count==count){
                 transf_stcat();
                 fputs(temp_deduct,fp_temp);
@@ -264,8 +256,7 @@ void transf_write(){
             else
                 fputs(pr_line,fp_temp);
             count++;
-            if(feof(fp_acc))
-                keep_reading=false;
+            
         }while(keep_reading);
         fclose(fp_acc);
         fclose(fp_temp);
