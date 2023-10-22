@@ -369,7 +369,7 @@ void mini_statement(){
     }
     fclose(fp);
     for(int k=0;k<=i;k++)
-        printf("%s\n",found[k]);
+        printf("%s",found[k]);
     _sleep(10000);
 }
 
